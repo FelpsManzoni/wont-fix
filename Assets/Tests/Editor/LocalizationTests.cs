@@ -39,6 +39,19 @@ namespace WontFix.Tests
             AssertTranslated(UiKeys);
         }
 
+        [Test]
+        public void Get_GeneratorKeys_NonEmptyInBothLanguages()
+        {
+            var keys = new System.Collections.Generic.List<string>();
+            foreach (var gen in GameData.Generators)
+            {
+                keys.Add($"gen.{gen.id}.name");
+                keys.Add($"gen.{gen.id}.flavor");
+            }
+
+            AssertTranslated(keys.ToArray());
+        }
+
         static void AssertTranslated(string[] keys)
         {
             foreach (var key in keys)

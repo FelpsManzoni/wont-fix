@@ -209,9 +209,11 @@ namespace WontFix
                 var gen = GameData.Generators[i];
                 var owned = game.Owned[i];
                 var canBuy = game.CanBuy(i);
+                var name = Localization.Get($"gen.{gen.id}.name");
+                var flavor = Localization.Get($"gen.{gen.id}.flavor");
 
-                rowInfoTexts[i].text = $"{gen.name}  (x{owned})\n{gen.flavor}";
-                rowCostTexts[i].text = $"{Economy.Format(game.CostOf(i))}";
+                rowInfoTexts[i].text = $"{name}  (x{owned})\n{flavor}";
+                rowCostTexts[i].text = Economy.Format(game.CostOf(i));
                 rowButtons[i].interactable = canBuy;
                 rowButtons[i].GetComponent<Image>().color =
                     canBuy ? new Color(0.20f, 0.45f, 0.30f) : new Color(0.25f, 0.25f, 0.28f);
