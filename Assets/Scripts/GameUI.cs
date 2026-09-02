@@ -22,6 +22,8 @@ namespace WontFix
         Game game;
         Text bugsText;
         Text rateText;
+        Text runTestLabel;
+        Text languageToggleText;
         readonly List<Text> rowInfoTexts = new();
         readonly List<Text> rowCostTexts = new();
         readonly List<Button> rowButtons = new();
@@ -40,11 +42,13 @@ namespace WontFix
         void OnEnable()
         {
             if (game != null) game.Changed += Refresh;
+            Localization.Changed += Refresh;
         }
 
         void OnDisable()
         {
             if (game != null) game.Changed -= Refresh;
+            Localization.Changed -= Refresh;
         }
 
         void Start() => Refresh();
@@ -102,16 +106,37 @@ namespace WontFix
         void BuildHeader(Transform parent)
         {
             var header = CreatePanel(parent, "Header", Panel).gameObject;
-            AddFixedHeight(header, 100);
+            AddFixedHeight(header, 120);
 
             var layout = header.AddComponent<VerticalLayoutGroup>();
             layout.padding = new RectOffset(16, 16, 12, 12);
+            layout.spacing = 6;
             layout.childControlWidth = true;
             layout.childControlHeight = true;
             layout.childForceExpandWidth = true;
 
-            bugsText = CreateText(header.transform, "0.0 bugs found", 32, TerminalGreen, FontStyle.Bold, TextAnchor.MiddleLeft);
-            rateText = CreateText(header.transform, "0.0 bugs/sec", 18, DimText, FontStyle.Normal, TextAnchor.MiddleLeft);
+            bugsText = CreateText(header.transform, "", 32, TerminalGreen, FontStyle.Bold, TextAnchor.MiddleLeft);
+
+            var subHeader = new GameObject("SubHeader", typeof(RectTransform));
+            subHeader.transform.SetParent(header.transform, false);
+            AddFixedHeight(subHeader, 30);
+
+            var subLayout = subHeader.AddComponent<HorizontalLayoutGroup>();
+            subLayout.spacing = 12;
+            subLayout.childControlWidth = true;
+            subLayout.childControlHeight = true;
+            subLayout.childForceExpandHeight = true;
+
+            rateText = CreateText(subHeader.transform, "", 18, DimText, FontStyle.Normal, TextAnchor.MiddleLeft);
+            AddFlexibleWidth(rateText.gameObject);
+
+            var toggleGO = CreatePanel(subHeader.transform, "LanguageToggle", Panel).gameObject;
+            AddFixedWidth(toggleGO, 90);
+            var toggleButton = toggleGO.AddComponent<Button>();
+            toggleButton.targetGraphic = toggleGO.GetComponent<Image>();
+            languageToggleText = CreateText(toggleGO.transform, "", 16, TerminalGreen, FontStyle.Bold, TextAnchor.MiddleCenter);
+            toggleButton.onClick.AddListener(() => Localization.SetLanguage(
+                Localization.Current == Language.English ? Language.PortugueseBR : Language.English));
         }
 
         void BuildRunButton(Transform parent)
@@ -126,7 +151,7 @@ namespace WontFix
             colors.pressedColor = new Color(0.15f, 0.35f, 0.24f);
             button.colors = colors;
 
-            CreateText(buttonGO.transform, "RUN TEST", 26, White, FontStyle.Bold, TextAnchor.MiddleCenter);
+            runTestLabel = CreateText(buttonGO.transform, "", 26, White, FontStyle.Bold, TextAnchor.MiddleCenter);
             button.onClick.AddListener(() => game.Click());
         }
 
@@ -201,8 +226,11 @@ namespace WontFix
 
         void Refresh()
         {
-            bugsText.text = $"{Economy.Format(game.Bugs)} bugs found";
-            rateText.text = $"{Economy.Format(game.BugsPerSecond)} bugs/sec";
+            runTestLabel.text = Localization.Get("ui.run_test");
+            languageToggleText.text = Localization.Current == Language.English ? "PT-BR" : "EN";
+
+            bugsText.text = string.Format(Localization.Get("ui.bugs_found"), Economy.Format(game.Bugs));
+            rateText.text = string.Format(Localization.Get("ui.bugs_per_second"), Economy.Format(game.BugsPerSecond));
 
             for (var i = 0; i < GameData.Generators.Length; i++)
             {
