@@ -24,9 +24,21 @@ Two assemblies, not one, because Unity compiles custom (asmdef) assemblies
 `Assembly-CSharp`. Gameplay code needs its own asmdef so tests can see it.
 
 - `Economy.cs` -- pure math (cost curve, number formatting, offline accrual).
-  No UnityEngine dependency, so it's the only thing worth unit testing.
-- `GameData.cs` -- the 12-generator content table, in code (not a
-  ScriptableObject) because nobody can hand-fill Inspector rows headlessly.
+  `Economy.cs` and `Localization.cs` are the two things covered by NUnit
+  tests: Economy has no UnityEngine dependency at all, and Localization is
+  self-initializing and PlayerPrefs-backed rather than tied to a
+  MonoBehaviour lifecycle, so both are exercisable directly from EditMode
+  tests with no scene needed.
+- `GameData.cs` -- the 12-generator balance table (id, baseCost,
+  bugsPerSecond), in code (not a ScriptableObject) because nobody can
+  hand-fill Inspector rows headlessly. Display text (name/flavor) lives in
+  `Localization.cs`, keyed by the generator's `id`.
+- `Localization.cs` -- the `Language` enum (English, PortugueseBR) and the
+  `Get`/`SetLanguage`/`Current`/`Changed` API, backed by two dictionaries
+  (En/PtBr). Any new player-visible string must be added as a key to BOTH
+  dictionaries, or `LocalizationTests` will fail -- the completeness-guard
+  tests assert every key resolves to a non-empty, non-fallback value in both
+  languages.
 - `Game.cs` -- the one MonoBehaviour: click, buy, tick, save/load via
   `PlayerPrefs` + `JsonUtility`. `[RequireComponent(typeof(GameUI))]` so
   adding `Game` in the Inspector is the only wiring step.
