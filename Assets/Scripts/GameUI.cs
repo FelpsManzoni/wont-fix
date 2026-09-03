@@ -130,11 +130,15 @@ namespace WontFix
             rateText = CreateText(subHeader.transform, "", 18, DimText, FontStyle.Normal, TextAnchor.MiddleLeft);
             AddFlexibleWidth(rateText.gameObject);
 
-            var toggleGO = CreatePanel(subHeader.transform, "LanguageToggle", Panel).gameObject;
+            var toggleGO = CreatePanel(subHeader.transform, "LanguageToggle", new Color(0.20f, 0.45f, 0.30f)).gameObject;
             AddFixedWidth(toggleGO, 90);
             var toggleButton = toggleGO.AddComponent<Button>();
             toggleButton.targetGraphic = toggleGO.GetComponent<Image>();
-            languageToggleText = CreateText(toggleGO.transform, "", 16, TerminalGreen, FontStyle.Bold, TextAnchor.MiddleCenter);
+            var toggleColors = toggleButton.colors;
+            toggleColors.highlightedColor = new Color(0.25f, 0.55f, 0.36f);
+            toggleColors.pressedColor = new Color(0.15f, 0.35f, 0.24f);
+            toggleButton.colors = toggleColors;
+            languageToggleText = CreateText(toggleGO.transform, "", 16, White, FontStyle.Bold, TextAnchor.MiddleCenter);
             toggleButton.onClick.AddListener(() => Localization.SetLanguage(
                 Localization.Current == Language.English ? Language.PortugueseBR : Language.English));
         }

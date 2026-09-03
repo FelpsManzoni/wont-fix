@@ -70,7 +70,8 @@ namespace WontFix
 
             if (PlayerPrefs.HasKey(LanguageKey))
             {
-                current = (Language)PlayerPrefs.GetInt(LanguageKey);
+                var stored = PlayerPrefs.GetInt(LanguageKey);
+                current = Enum.IsDefined(typeof(Language), stored) ? (Language)stored : Language.English;
                 return;
             }
 

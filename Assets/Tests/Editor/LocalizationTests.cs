@@ -52,6 +52,17 @@ namespace WontFix.Tests
             AssertTranslated(keys.ToArray());
         }
 
+        [Test]
+        public void FormatKeys_ContainPlaceholder()
+        {
+            foreach (var key in new[] { "ui.bugs_found", "ui.bugs_per_second" })
+                foreach (var lang in new[] { Language.English, Language.PortugueseBR })
+                {
+                    Localization.SetLanguage(lang);
+                    StringAssert.Contains("{0}", Localization.Get(key));
+                }
+        }
+
         static void AssertTranslated(string[] keys)
         {
             foreach (var key in keys)
