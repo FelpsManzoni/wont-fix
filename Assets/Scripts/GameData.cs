@@ -8,6 +8,7 @@ namespace WontFix
         public double bugs;
         public double lifetimeBugs;
         public int[] owned;
+        public bool[] upgradesPurchased;
         public long lastSeenUnixSeconds;
     }
 
@@ -26,11 +27,36 @@ namespace WontFix
         }
     }
 
+    public enum UpgradeEffect
+    {
+        Click,
+        Generator,
+    }
+
+    [Serializable]
+    public struct Upgrade
+    {
+        public string id;
+        public string generatorId;
+        public double cost;
+        public UpgradeEffect effect;
+        public double multiplier;
+
+        public Upgrade(string id, string generatorId, double cost, UpgradeEffect effect, double multiplier)
+        {
+            this.id = id;
+            this.generatorId = generatorId;
+            this.cost = cost;
+            this.effect = effect;
+            this.multiplier = multiplier;
+        }
+    }
+
     // Content lives here, in code, not in a ScriptableObject asset -- a
-    // ScriptableObject would mean hand-filling 12 rows in the Inspector,
-    // and nobody can touch the Inspector here. Display text (name/flavor)
-    // lives in Localization.cs, keyed by id, so balance changes here never
-    // touch translated content and vice versa.
+    // ScriptableObject would mean hand-filling rows in the Inspector, and
+    // nobody can touch the Inspector here. Display text (name/flavor) lives
+    // in Localization.cs, keyed by id, so balance changes here never touch
+    // translated content and vice versa.
     public static class GameData
     {
         public static readonly Generator[] Generators =
@@ -48,5 +74,23 @@ namespace WontFix
             new Generator("formal_verification_lab", 1000000000000, 10000000),
             new Generator("production_users", 14000000000000, 65000000),
         };
+
+        // generatorId gates this upgrade's own unlock (own >=1 of it) AND,
+        // for Generator-effect upgrades, is the generator it boosts.
+        public static readonly Upgrade[] Upgrades =
+        {
+            new Upgrade("reproducible_steps", "junior_tester", 150, UpgradeEffect.Click, 2),
+            new Upgrade("second_monitor", "junior_tester", 150, UpgradeEffect.Generator, 2),
+            new Upgrade("explicit_waits", "selenium_script", 11000, UpgradeEffect.Generator, 2),
+            new Upgrade("flaky_test_quarantine", "ci_pipeline", 120000, UpgradeEffect.Generator, 2),
+        };
+
+        public static int IndexOfGenerator(string id)
+        {
+            for (var i = 0; i < Generators.Length; i++)
+                if (Generators[i].id == id)
+                    return i;
+            return -1;
+        }
     }
 }
